@@ -1,0 +1,8 @@
+fecha_local,hora_local,dia_semana,zona,current_speed_kmph,free_flow_kmph,ratio,nivel,confidence,notas
+2026-08-28,19:55,viernes,Centro,7,23,0.3,congestionado,0.956852,
+2026-08-28,19:55,viernes,Plaza Americas-Zona UV,22,33,0.67,moderado,0.98993,
+2026-08-28,19:55,viernes,Xalapa 2000,40,42,0.95,cerrado,0.683584,
+2026-08-28,19:55,viernes,Av Lazaro Cardenas,14,17,0.82,fluido,0.802985,
+2026-08-28,19:55,viernes,Av Americas,19,26,0.73,moderado,0.989226,
+2026-08-28,19:55,viernes,Salida a Coatepec,38,43,0.88,fluido,0.724411,
+2026-08-28,19:55,viernes,Salida a Veracruz,33,38,0.87,fluido,0.803057,
