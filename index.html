@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tráfico Xalapa — Monitor</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --ink:#141821; --muted:#5b6472; --line:#e4e8ee;
+    --green:#1a9d5a; --amber:#e0952b; --red:#d5423b; --gray:#6b7280; --accent:#2563eb;
+    --shadow:0 1px 3px rgba(20,24,33,.08),0 1px 2px rgba(20,24,33,.04);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0e1116; --card:#171b22; --ink:#e8ecf2; --muted:#98a2b3; --line:#252b34;
+    --green:#35c07a; --amber:#f0ad4e; --red:#f0655d; --gray:#8b95a5; --accent:#5b8bf0;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;padding:16px;max-width:1100px;margin:0 auto}
+  header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin:6px 4px 18px}
+  h1{font-size:1.35rem;margin:0;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.85rem}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;
+    box-shadow:0 0 0 0 rgba(53,192,122,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(53,192,122,.5)}70%{box-shadow:0 0 0 7px rgba(53,192,122,0)}100%{box-shadow:0 0 0 0 rgba(53,192,122,0)}}
+  .grid{display:grid;gap:12px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+  .kpi .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+  .kpi .val{font-size:1.7rem;font-weight:700;line-height:1;letter-spacing:-.02em}
+  .kpi .val small{font-size:.9rem;font-weight:600;color:var(--muted)}
+  .sec-title{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:20px 4px 10px}
+  .zones{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .zone{display:flex;align-items:center;gap:12px}
+  .zone .bar{width:6px;align-self:stretch;border-radius:6px;min-height:42px}
+  .zone .zn{font-weight:600;font-size:.95rem}
+  .zone .zs{font-size:.8rem;color:var(--muted);margin-top:2px}
+  .pill{margin-left:auto;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .b-fluido{background:var(--green)} .b-moderado{background:var(--amber)}
+  .b-congestionado{background:var(--red)} .b-cerrado{background:var(--gray)} .b-error{background:var(--gray)}
+  .p-fluido{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+  .p-moderado{background:color-mix(in srgb,var(--amber) 20%,transparent);color:var(--amber)}
+  .p-congestionado{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red)}
+  .p-cerrado{background:color-mix(in srgb,var(--gray) 20%,transparent);color:var(--gray)}
+  .p-error{background:color-mix(in srgb,var(--gray) 20%,transparent);color:var(--gray)}
+  .chartcard{overflow-x:auto}
+  svg{display:block;width:100%;height:auto;max-width:100%}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--muted);margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  footer{color:var(--muted);font-size:.75rem;text-align:center;margin:24px 4px 8px;line-height:1.5}
+  .err{background:color-mix(in srgb,var(--red) 12%,transparent);border:1px solid var(--red);color:var(--red);
+    padding:12px 14px;border-radius:12px;margin:10px 4px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🚦 Tráfico Xalapa</h1>
+    <div class="sub"><span class="dot"></span><span id="status">Cargando…</span></div>
+  </div>
+  <div class="sub" id="meta"></div>
+</header>
+
+<div id="app"></div>
+
+<footer>
+  Datos: TomTom Traffic · muestreo cada 15 min desde la A1 · fuente
+  <a href="https://github.com/danielcruzrmx/xalapa-trafico-log/blob/main/data/trafico_xalapa.csv" target="_blank" rel="noopener">CSV</a><br>
+  Se actualiza solo cada 3 min. Nivel = velocidad actual ÷ velocidad en flujo libre.
+</footer>
+
+<script>
+const CSV_URL = "./data/trafico_xalapa.csv?t=" + Date.now();
+const NIV = {fluido:"var(--green)",moderado:"var(--amber)",congestionado:"var(--red)",cerrado:"var(--gray)",error:"var(--gray)"};
+const $ = s => document.querySelector(s);
+
+function parseCSV(txt){
+  const lines = txt.trim().split(/\r?\n/);
+  const head = lines[0].split(",");
+  return lines.slice(1).map(l=>{
+    const c = l.split(",");
+    const o = {}; head.forEach((h,i)=>o[h]=c[i]);
+    return o;
+  });
+}
+function fmtInt(n){return isFinite(n)?Math.round(n):"—"}
+
+function render(rows){
+  if(!rows.length){ $("#app").innerHTML='<div class="err">Aún no hay muestras. Vuelve en unos minutos.</div>'; return; }
+  rows.forEach(r=>{
+    r.cs = parseFloat(r.current_speed_kmph); r.ff = parseFloat(r.free_flow_kmph);
+    r.ratio = parseFloat(r.ratio); r.hour = parseInt((r.hora_local||"0:0").split(":")[0],10);
+    r.ts = r.fecha_local+" "+r.hora_local;
+  });
+  const lastTs = rows[rows.length-1].ts;
+  const now = rows.filter(r=>r.ts===lastTs);
+  const nZonas = new Set(rows.map(r=>r.zona)).size;
+  const cong = now.filter(r=>r.nivel==="congestionado").length;
+  const validNow = now.filter(r=>isFinite(r.ratio)&&r.nivel!=="cerrado"&&r.nivel!=="error");
+  const avgNow = validNow.reduce((a,r)=>a+r.ratio,0)/(validNow.length||1);
+  const slow = [...now].filter(r=>isFinite(r.ratio)).sort((a,b)=>a.ratio-b.ratio)[0];
+
+  $("#status").textContent = "En vivo · última muestra "+lastTs+" (hora Xalapa)";
+  $("#meta").textContent = rows.length+" muestras · "+nZonas+" zonas";
+
+  // KPIs
+  const kpis = [
+    ["Última muestra", now[0]?.hora_local||"—", now[0]?.fecha_local||""],
+    ["Zonas congestionadas", cong+"<small>/"+now.length+"</small>", "ahora mismo"],
+    ["Velocidad vs libre", Math.round(avgNow*100)+"<small>%</small>", "promedio ahora"],
+    ["Zona más lenta", slow?slow.zona:"—", slow?fmtInt(slow.cs)+"/"+fmtInt(slow.ff)+" km/h":""],
+    ["Muestras totales", rows.length, "esta semana"],
+  ];
+  let html = '<div class="grid kpis">'+kpis.map(k=>
+    `<div class="card kpi"><div class="label">${k[0]}</div><div class="val">${k[1]}</div><div class="sub" style="margin-top:6px">${k[2]}</div></div>`
+  ).join("")+'</div>';
+
+  // Estado actual por zona
+  html += '<div class="sec-title">Estado actual por zona</div><div class="grid zones">';
+  html += now.map(r=>{
+    const col = NIV[r.nivel]||"var(--gray)";
+    const spd = isFinite(r.cs)? `${r.cs} de ${r.ff} km/h`:"sin dato";
+    return `<div class="card zone"><div class="bar" style="background:${col}"></div>
+      <div><div class="zn">${r.zona}</div><div class="zs">${spd}</div></div>
+      <span class="pill p-${r.nivel}">${r.nivel}</span></div>`;
+  }).join("")+'</div>';
+
+  // Congestión promedio por hora del día
+  const byHour = {};
+  rows.filter(r=>isFinite(r.ratio)&&r.nivel!=="cerrado"&&r.nivel!=="error").forEach(r=>{
+    (byHour[r.hour]=byHour[r.hour]||[]).push(r.ratio);
+  });
+  const hours = Object.keys(byHour).map(Number).sort((a,b)=>a-b);
+  if(hours.length){
+    const W=Math.max(560,hours.length*44), H=200, pad=30, bw=Math.min(30,(W-2*pad)/hours.length-8);
+    let bars="";
+    hours.forEach((h,i)=>{
+      const avg = byHour[h].reduce((a,v)=>a+v,0)/byHour[h].length;
+      const x = pad + i*((W-2*pad)/hours.length) + 4;
+      const bh = (H-pad-14)*Math.min(avg,1);
+      const y = H-pad-bh;
+      const col = avg>=0.75?"var(--green)":avg>=0.5?"var(--amber)":"var(--red)";
+      bars += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="3" fill="${col}"/>`;
+      bars += `<text x="${x+bw/2}" y="${H-pad+13}" text-anchor="middle" font-size="10" fill="var(--muted)">${h}h</text>`;
+      bars += `<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="var(--muted)">${Math.round(avg*100)}</text>`;
+    });
+    html += '<div class="sec-title">Fluidez promedio por hora (% de velocidad libre — más bajo = peor)</div>'+
+      `<div class="card chartcard"><svg viewBox="0 0 ${W} ${H}" role="img">
+       <line x1="${pad}" y1="${H-pad}" x2="${W-pad+10}" y2="${H-pad}" stroke="var(--line)"/>${bars}</svg>
+       <div class="legend"><span><i style="background:var(--green)"></i>fluido ≥75%</span>
+       <span><i style="background:var(--amber)"></i>moderado 50-75%</span>
+       <span><i style="background:var(--red)"></i>congestionado &lt;50%</span></div></div>`;
+  }
+
+  $("#app").innerHTML = html;
+}
+
+async function load(){
+  try{
+    const res = await fetch("./data/trafico_xalapa.csv?t="+Date.now(),{cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    render(parseCSV(await res.text()));
+  }catch(e){
+    $("#status").textContent = "Error al cargar datos";
+    if(!$("#app").innerHTML) $("#app").innerHTML='<div class="err">No se pudo leer el CSV ('+e.message+'). Si acabas de activar GitHub Pages, espera 1-2 min.</div>';
+  }
+}
+load();
+setInterval(load, 180000); // 3 min
+</script>
+</body>
+</html>
