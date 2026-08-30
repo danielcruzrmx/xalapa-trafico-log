@@ -158,6 +158,50 @@ function render(rows){
        <span><i style="background:var(--red)"></i>congestionado &lt;50%</span></div></div>`;
   }
 
+  // ===== Índice de trabajabilidad por hora (tráfico medido × demanda típica) =====
+  // Demanda típica de plataformas (0-1) por hora — patrón general Xalapa (mañana, comida, noche)
+  const DEMAND = {0:.2,1:.15,2:.12,3:.1,4:.12,5:.2,6:.4,7:.7,8:.8,9:.6,10:.5,11:.5,
+    12:.6,13:.75,14:.75,15:.6,16:.55,17:.65,18:.85,19:.95,20:.95,21:.85,22:.7,23:.45};
+  const scoreByHour = {};
+  hours.forEach(h=>{
+    const flu = byHour[h].reduce((a,v)=>a+v,0)/byHour[h].length; // 0-1 fluidez medida
+    scoreByHour[h] = Math.round((DEMAND[h]??.5)*flu*100);
+  });
+  const ranked = Object.entries(scoreByHour).map(([h,s])=>({h:+h,s})).sort((a,b)=>b.s-a.s);
+  const scoreCat = s => s>=55?["#1a9d5a","Excelente"]:s>=40?["#7bb03a","Bueno"]:s>=28?["#e0952b","Regular"]:["#d5423b","Flojo"];
+  if(ranked.length){
+    const best = ranked.slice(0,3).map(r=>`${r.h}:00`).join(", ");
+    const worst = ranked.slice(-3).reverse().map(r=>`${r.h}:00`).join(", ");
+    // KPI destacado arriba: mejor franja
+    const topCard = `<div class="card kpi" style="grid-column:1/-1;background:linear-gradient(135deg,color-mix(in srgb,var(--green) 12%,var(--card)),var(--card))">
+      <div class="label">💰 Mejores horas para trabajar (tráfico + demanda)</div>
+      <div class="val" style="font-size:1.3rem">${best}</div>
+      <div class="sub" style="margin-top:6px">Evita para maximizar ganancia/hora: ${worst}</div></div>`;
+    html = html.replace('</div>\n', '</div>'); // no-op safety
+    // barras por hora
+    const W=Math.max(560,hours.length*44),H=210,pad=30,bw=Math.min(30,(W-2*pad)/hours.length-8);
+    let bars="";
+    hours.forEach((h,i)=>{
+      const s=scoreByHour[h], [col]=scoreCat(s);
+      const x=pad+i*((W-2*pad)/hours.length)+4, bh=(H-pad-16)*Math.min(s/70,1), y=H-pad-bh;
+      bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="3" fill="${col}"/>`;
+      bars+=`<text x="${x+bw/2}" y="${H-pad+13}" text-anchor="middle" font-size="10" fill="var(--muted)">${h}h</text>`;
+      bars+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="var(--muted)">${s}</text>`;
+    });
+    const nowH = now[0]? parseInt(now[0].hora_local.split(":")[0],10):null;
+    const nowScore = nowH!=null && scoreByHour[nowH]!=null ? scoreByHour[nowH] : null;
+    const nowLbl = nowScore!=null ? scoreCat(nowScore)[1] : "—";
+    html = `<div class="grid kpis">${topCard}</div>` + html +
+      `<div class="sec-title">🕐 Índice de trabajabilidad por hora (más alto = mejor para salir)</div>
+       <div class="card chartcard"><svg viewBox="0 0 ${W} ${H}" role="img">
+       <line x1="${pad}" y1="${H-pad}" x2="${W-pad+10}" y2="${H-pad}" stroke="var(--line)"/>${bars}</svg>
+       <div class="legend"><span><i style="background:#1a9d5a"></i>excelente</span>
+       <span><i style="background:#7bb03a"></i>bueno</span><span><i style="background:#e0952b"></i>regular</span>
+       <span><i style="background:#d5423b"></i>flojo</span></div>
+       <div class="sub" style="margin-top:8px">Índice = fluidez del tráfico (medida) × demanda típica de plataformas por hora.
+       Ahora (${nowH!=null?nowH+"h":"—"}): <b>${nowScore??"—"} · ${nowLbl}</b></div></div>`;
+  }
+
   $("#app").innerHTML = html;
 }
 
