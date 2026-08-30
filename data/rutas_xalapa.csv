@@ -1,0 +1,6 @@
+fecha_local,hora_local,dia_semana,ruta,min_actual,min_libre,retraso_pct,nivel,dist_km,notas
+2026-08-30,08:00,domingo,Centro -> Plaza Americas,8.2,8.3,0,fluido,2.86,
+2026-08-30,08:00,domingo,Centro -> Xalapa 2000,10.7,10.7,0,fluido,5.89,
+2026-08-30,08:00,domingo,Centro -> Salida Veracruz,9.9,9.9,-1,fluido,3.29,
+2026-08-30,08:00,domingo,Plaza Americas -> Xalapa 2000,5.0,5.0,0,fluido,1.51,
+2026-08-30,08:00,domingo,Centro -> Salida Coatepec,12.4,12.1,2,fluido,7.06,
