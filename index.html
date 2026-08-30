@@ -67,6 +67,7 @@
 </header>
 
 <div id="app"></div>
+<div id="routes"></div>
 
 <footer>
   Datos: TomTom Traffic · muestreo cada 15 min desde la A1 · fuente
@@ -160,6 +161,23 @@ function render(rows){
   $("#app").innerHTML = html;
 }
 
+function renderRoutes(rows){
+  if(!rows.length){ $("#routes").innerHTML=""; return; }
+  rows.forEach(r=>{ r.delay=parseInt(r.retraso_pct); r.min=parseFloat(r.min_actual); r.ts=r.fecha_local+" "+r.hora_local; });
+  const lastTs = rows[rows.length-1].ts;
+  const now = rows.filter(r=>r.ts===lastTs);
+  let html='<div class="sec-title">Rutas — tiempo real vs. normal (retraso por tráfico)</div><div class="grid zones">';
+  html += now.sort((a,b)=>(b.delay||0)-(a.delay||0)).map(r=>{
+    const col = NIV[r.nivel]||"var(--gray)";
+    const d = isFinite(r.delay)? (r.delay>0?"+"+r.delay+"%":r.delay+"%") : "—";
+    const mn = isFinite(r.min)? r.min+" min" : "sin dato";
+    return `<div class="card zone"><div class="bar" style="background:${col}"></div>
+      <div><div class="zn">${r.ruta}</div><div class="zs">${mn} · normal ${r.min_libre} min</div></div>
+      <span class="pill p-${r.nivel}">${d}</span></div>`;
+  }).join("")+'</div>';
+  $("#routes").innerHTML = html;
+}
+
 async function load(){
   try{
     const res = await fetch("./data/trafico_xalapa.csv?t="+Date.now(),{cache:"no-store"});
@@ -169,6 +187,10 @@ async function load(){
     $("#status").textContent = "Error al cargar datos";
     if(!$("#app").innerHTML) $("#app").innerHTML='<div class="err">No se pudo leer el CSV ('+e.message+'). Si acabas de activar GitHub Pages, espera 1-2 min.</div>';
   }
+  try{
+    const r2 = await fetch("./data/rutas_xalapa.csv?t="+Date.now(),{cache:"no-store"});
+    if(r2.ok) renderRoutes(parseCSV(await r2.text()));
+  }catch(e){ /* aún no hay datos de rutas */ }
 }
 load();
 setInterval(load, 180000); // 3 min
