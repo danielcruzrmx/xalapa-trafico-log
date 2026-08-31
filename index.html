@@ -189,15 +189,23 @@
 const API_BASE = "https://xalapa-trafico-api.ccsupp-9875.workers.dev";
 let gpsA = null; // coords de "mi ubicación" si el usuario la activa
 
-async function planTrip({from, to, flat, flon}){
+async function planTrip({from, to, flat, flon, tlat, tlon, tname}){
   const p = new URLSearchParams();
   if(flat!=null && flon!=null){ p.set("flat",flat); p.set("flon",flon); }
   else if(from){ p.set("from",from); }
-  p.set("to", to);
+  if(tlat!=null && tlon!=null){ p.set("tlat",tlat); p.set("tlon",tlon); if(tname) p.set("tname",tname); p.set("to",tname||"destino"); }
+  else { p.set("to", to); }
   const r = await fetch(`${API_BASE}/api/plan?`+p.toString());
   const d = await r.json();
   if(!r.ok) throw new Error(d.error||("HTTP "+r.status));
   return d;
+}
+async function bizSearch(q){
+  try{
+    const r = await fetch(`${API_BASE}/api/biz?q=`+encodeURIComponent(q));
+    const d = await r.json();
+    return r.ok ? (d.results||[]) : [];
+  }catch(e){ return []; }
 }
 function tripVerdict(delay){
   if(delay<0.15) return ["✅ Viaje fiable","var(--green)","Tráfico fluido — buen momento para tomarlo."];
@@ -215,35 +223,55 @@ document.addEventListener("click", async (e)=>{
       btn.textContent="📍 Ubicación lista";
     },err=>{ btn.textContent="📍 Permiso denegado"; },{enableHighAccuracy:true,timeout:10000});
   }
-  if(e.target.id==="calc"){
-    const out=document.getElementById("tripresult");
-    const aTxt=document.getElementById("pa").value.trim();
-    const bTxt=document.getElementById("pb").value.trim();
-    if(!bTxt){ out.innerHTML='<div class="err">Escribe el destino (Punto B).</div>'; return; }
-    out.innerHTML='<div class="sub">Calculando…</div>';
-    try{
-      const useGps = gpsA && aTxt.startsWith("📍");
-      const d = await planTrip(useGps
-        ? {flat:gpsA.lat, flon:gpsA.lon, to:bTxt}
-        : {from:aTxt||"Centro", to:bTxt});
-      const A={name:d.from.name}, B={name:d.to.name};
-      const tt=d.min_actual*60, ntt=d.min_libre*60;
-      const delay=d.retraso_pct/100, km=d.km.toFixed(1), kmh=d.kmh;
-      const [tit,col,msg]=tripVerdict(delay);
-      out.innerHTML=`<div class="card" style="border-left:4px solid ${col}">
-        <div style="font-size:1.15rem;font-weight:700;color:${col};margin-bottom:6px">${tit}</div>
-        <div style="font-size:.92rem;color:var(--muted);margin-bottom:10px">${msg}</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px">
-          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Distancia</div><div style="font-size:1.25rem;font-weight:700">${km}<small style="font-size:.8rem;color:var(--muted)"> km</small></div></div>
-          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Tiempo ahora</div><div style="font-size:1.25rem;font-weight:700">${Math.round(tt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
-          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Normal</div><div style="font-size:1.25rem;font-weight:700">${Math.round(ntt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
-          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Retraso</div><div style="font-size:1.25rem;font-weight:700;color:${col}">+${Math.round(delay*100)}<small style="font-size:.8rem">%</small></div></div>
-          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Velocidad</div><div style="font-size:1.25rem;font-weight:700">${kmh}<small style="font-size:.8rem;color:var(--muted)"> km/h</small></div></div>
-        </div>
-        <div style="font-size:.78rem;color:var(--muted);margin-top:10px">A: ${A.name||"tu ubicación"} → B: ${B.name}</div></div>`;
-    }catch(err){ out.innerHTML='<div class="err">No se pudo calcular: '+err.message+'</div>'; }
-  }
+  if(e.target.id==="calc"){ startCalc(); }
+  const pick = e.target.closest && e.target.closest(".destpick");
+  if(pick){ doPlan({tlat:+pick.dataset.lat, tlon:+pick.dataset.lon, tname:pick.dataset.name}); }
 });
+
+function originArgs(){
+  const aTxt=document.getElementById("pa").value.trim();
+  const useGps = gpsA && aTxt.startsWith("📍");
+  return useGps ? {flat:gpsA.lat, flon:gpsA.lon} : {from:aTxt||"Centro"};
+}
+async function startCalc(){
+  const out=document.getElementById("tripresult");
+  const bTxt=document.getElementById("pb").value.trim();
+  if(!bTxt){ out.innerHTML='<div class="err">Escribe el destino (Punto B).</div>'; return; }
+  out.innerHTML='<div class="sub">Buscando destino…</div>';
+  const biz = await bizSearch(bTxt);
+  if(biz.length>1){
+    out.innerHTML='<div class="card"><div class="sub" style="margin-bottom:8px">Elige el destino exacto:</div>'+
+      biz.map(b=>`<button class="destpick" data-lat="${b.lat}" data-lon="${b.lon}" data-name="${(b.nom||'').replace(/"/g,'&quot;')}"
+        style="display:block;width:100%;text-align:left;padding:10px;margin:5px 0;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer">
+        <b>${b.nom}</b><br><span style="font-size:.78rem;color:var(--muted)">${b.cat} · ${b.col}, ${b.mun}</span></button>`).join('')+
+      '</div>';
+    return;
+  }
+  if(biz.length===1) return doPlan({tlat:biz[0].lat, tlon:biz[0].lon, tname:biz[0].nom});
+  return doPlan({to:bTxt});
+}
+async function doPlan(dest){
+  const out=document.getElementById("tripresult");
+  out.innerHTML='<div class="sub">Calculando…</div>';
+  try{ renderTripCard(await planTrip(Object.assign(originArgs(), dest)), out); }
+  catch(err){ out.innerHTML='<div class="err">No se pudo calcular: '+err.message+'</div>'; }
+}
+function renderTripCard(d, out){
+  const tt=d.min_actual*60, ntt=d.min_libre*60;
+  const delay=d.retraso_pct/100, km=d.km.toFixed(1), kmh=d.kmh;
+  const [tit,col,msg]=tripVerdict(delay);
+  out.innerHTML=`<div class="card" style="border-left:4px solid ${col}">
+    <div style="font-size:1.15rem;font-weight:700;color:${col};margin-bottom:6px">${tit}</div>
+    <div style="font-size:.92rem;color:var(--muted);margin-bottom:10px">${msg}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px">
+      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Distancia</div><div style="font-size:1.25rem;font-weight:700">${km}<small style="font-size:.8rem;color:var(--muted)"> km</small></div></div>
+      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Tiempo ahora</div><div style="font-size:1.25rem;font-weight:700">${Math.round(tt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
+      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Normal</div><div style="font-size:1.25rem;font-weight:700">${Math.round(ntt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
+      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Retraso</div><div style="font-size:1.25rem;font-weight:700;color:${col}">+${Math.round(delay*100)}<small style="font-size:.8rem">%</small></div></div>
+      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Velocidad</div><div style="font-size:1.25rem;font-weight:700">${kmh}<small style="font-size:.8rem;color:var(--muted)"> km/h</small></div></div>
+    </div>
+    <div style="font-size:.78rem;color:var(--muted);margin-top:10px">A: ${d.from.name||"tu ubicación"} → B: ${d.to.name}</div></div>`;
+}
 
 const CSV_URL = "./data/trafico_xalapa.csv?t=" + Date.now();
 const NIV = {fluido:"var(--green)",moderado:"var(--amber)",congestionado:"var(--red)",cerrado:"var(--gray)",error:"var(--gray)"};
