@@ -155,26 +155,19 @@
 </footer>
 
 <script>
-// Key SOLO para el planificador del dashboard (pública). Reemplázala por una key dedicada de TomTom.
-const TT_KEY = "2Jjj8Ywnc6nAyO1do4vfNDJGHH6HDELa";
-const XAL = {lat:19.5438, lon:-96.9102}; // sesgo de búsqueda hacia Xalapa
+// El planificador ahora pasa por el Worker (la key de TomTom vive en el edge, no aquí).
+const API_BASE = "https://xalapa-trafico-api.ccsupp-9875.workers.dev";
 let gpsA = null; // coords de "mi ubicación" si el usuario la activa
 
-async function geocode(q){
-  if(!/xalapa|veracruz|banderilla|lencero/i.test(q)) q = q + ", Xalapa, Veracruz";
-  const url = `https://api.tomtom.com/search/2/geocode/${encodeURIComponent(q)}.json`+
-    `?key=${TT_KEY}&countrySet=MX&limit=1&lat=${XAL.lat}&lon=${XAL.lon}&radius=25000`;
-  const r = await fetch(url); if(!r.ok) throw new Error("geocode "+r.status);
+async function planTrip({from, to, flat, flon}){
+  const p = new URLSearchParams();
+  if(flat!=null && flon!=null){ p.set("flat",flat); p.set("flon",flon); }
+  else if(from){ p.set("from",from); }
+  p.set("to", to);
+  const r = await fetch(`${API_BASE}/api/plan?`+p.toString());
   const d = await r.json();
-  if(!d.results||!d.results.length) throw new Error("no encontré \""+q+"\"");
-  const p = d.results[0];
-  return {lat:p.position.lat, lon:p.position.lon, name:p.address.freeformAddress||q};
-}
-async function routeAB(a,b){
-  const url = `https://api.tomtom.com/routing/1/calculateRoute/`+
-    `${a.lat},${a.lon}:${b.lat},${b.lon}/json?key=${TT_KEY}&traffic=true&computeTravelTimeFor=all`;
-  const r = await fetch(url); if(!r.ok) throw new Error("routing "+r.status);
-  return (await r.json()).routes[0].summary;
+  if(!r.ok) throw new Error(d.error||("HTTP "+r.status));
+  return d;
 }
 function tripVerdict(delay){
   if(delay<0.15) return ["✅ Viaje fiable","var(--green)","Tráfico fluido — buen momento para tomarlo."];
@@ -196,16 +189,16 @@ document.addEventListener("click", async (e)=>{
     const out=document.getElementById("tripresult");
     const aTxt=document.getElementById("pa").value.trim();
     const bTxt=document.getElementById("pb").value.trim();
-    if(TT_KEY.startsWith("PONER_")){ out.innerHTML='<div class="err">Falta configurar la API key del planificador.</div>'; return; }
     if(!bTxt){ out.innerHTML='<div class="err">Escribe el destino (Punto B).</div>'; return; }
     out.innerHTML='<div class="sub">Calculando…</div>';
     try{
-      const A = gpsA && aTxt.startsWith("📍") ? gpsA : await geocode(aTxt||"Centro, Xalapa");
-      const B = await geocode(bTxt);
-      const s = await routeAB(A,B);
-      const tt=s.travelTimeInSeconds, ntt=s.noTrafficTravelTimeInSeconds||tt;
-      const delay=(tt-ntt)/ntt, km=(s.lengthInMeters/1000).toFixed(1);
-      const kmh=Math.round((s.lengthInMeters/1000)/(tt/3600));
+      const useGps = gpsA && aTxt.startsWith("📍");
+      const d = await planTrip(useGps
+        ? {flat:gpsA.lat, flon:gpsA.lon, to:bTxt}
+        : {from:aTxt||"Centro", to:bTxt});
+      const A={name:d.from.name}, B={name:d.to.name};
+      const tt=d.min_actual*60, ntt=d.min_libre*60;
+      const delay=d.retraso_pct/100, km=d.km.toFixed(1), kmh=d.kmh;
       const [tit,col,msg]=tripVerdict(delay);
       out.innerHTML=`<div class="card" style="border-left:4px solid ${col}">
         <div style="font-size:1.15rem;font-weight:700;color:${col};margin-bottom:6px">${tit}</div>
