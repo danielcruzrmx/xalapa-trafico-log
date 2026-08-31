@@ -70,10 +70,76 @@
   <div class="label" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">🧭 ¿Conviene este viaje? (A → B en vivo)</div>
   <div style="display:grid;gap:8px">
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <input id="pa" placeholder="Punto A (dirección o lugar)" style="flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.95rem">
+      <input id="pa" list="lugares" placeholder="Punto A (dirección o lugar)" style="flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.95rem">
       <button id="gps" style="padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;white-space:nowrap">📍 Mi ubicación</button>
     </div>
-    <input id="pb" placeholder="Punto B (destino)" style="padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.95rem">
+    <input id="pb" list="lugares" placeholder="Punto B (destino)" style="padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.95rem">
+    <datalist id="lugares">
+      <option value="Parque Juárez, Xalapa"></option>
+      <option value="Paseo de los Lagos, Xalapa"></option>
+      <option value="Parque Los Berros, Xalapa"></option>
+      <option value="Parque Macuiltépetl, Xalapa"></option>
+      <option value="Parque Natura, Xalapa"></option>
+      <option value="Jardín de las Esculturas, Xalapa"></option>
+      <option value="Los Tecajetes, Xalapa"></option>
+      <option value="Catedral de Xalapa"></option>
+      <option value="Palacio de Gobierno, Xalapa"></option>
+      <option value="Plaza Lerdo, Xalapa"></option>
+      <option value="Ágora de la Ciudad, Xalapa"></option>
+      <option value="Teatro del Estado, Xalapa"></option>
+      <option value="Estadio Xalapeño"></option>
+      <option value="Museo de Antropología MAX, Xalapa"></option>
+      <option value="USBI Xalapa"></option>
+      <option value="UV Zona Universitaria, Xalapa"></option>
+      <option value="UV Rectoría, Xalapa"></option>
+      <option value="Facultad de Medicina UV, Xalapa"></option>
+      <option value="Universidad Anáhuac Xalapa"></option>
+      <option value="UPAV Xalapa"></option>
+      <option value="Colegio Preparatorio de Xalapa"></option>
+      <option value="Hospital Ángeles Xalapa"></option>
+      <option value="Centro de Especialidades Médicas CEM, Xalapa"></option>
+      <option value="IMSS Xalapa"></option>
+      <option value="ISSSTE Xalapa"></option>
+      <option value="Plaza Crystal, Xalapa"></option>
+      <option value="Plaza Museo, Xalapa"></option>
+      <option value="Plaza Las Américas, Xalapa"></option>
+      <option value="Plaza Ánimas, Xalapa"></option>
+      <option value="Plaza El Dorado, Xalapa"></option>
+      <option value="Walmart Lázaro Cárdenas, Xalapa"></option>
+      <option value="Sam's Club Xalapa"></option>
+      <option value="Mercado Jáuregui, Xalapa"></option>
+      <option value="Mercado San José, Xalapa"></option>
+      <option value="Terminal CAXA, Xalapa"></option>
+      <option value="Aeropuerto El Lencero"></option>
+      <option value="Centro, Xalapa"></option>
+      <option value="Colonia Ánimas, Xalapa"></option>
+      <option value="Los Sauces, Xalapa"></option>
+      <option value="Casa Blanca, Xalapa"></option>
+      <option value="El Castillo, Xalapa"></option>
+      <option value="Banderilla, Veracruz"></option>
+      <option value="Las Trancas, Xalapa"></option>
+      <option value="Fraccionamiento Xalapa 2000"></option>
+      <option value="Colonia Revolución, Xalapa"></option>
+      <option value="Progreso Macuiltépetl, Xalapa"></option>
+      <option value="Colonia 21 de Marzo, Xalapa"></option>
+      <option value="Obrero Campesino, Xalapa"></option>
+      <option value="Colonia Badillo, Xalapa"></option>
+      <option value="Colonia Rébsamen, Xalapa"></option>
+      <option value="Ferrer Guardia, Xalapa"></option>
+      <option value="Fovissste Xalapa"></option>
+      <option value="Sipeh Ánimas, Xalapa"></option>
+      <option value="Colonia del Maestro, Xalapa"></option>
+      <option value="Unidad del Bosque, Xalapa"></option>
+      <option value="Bugambilias, Xalapa"></option>
+      <option value="Lomas Verdes, Xalapa"></option>
+      <option value="Colonia Pomona, Xalapa"></option>
+      <option value="Nuevo Xalapa"></option>
+      <option value="Coapexpan, Xalapa"></option>
+      <option value="Las Fuentes, Xalapa"></option>
+      <option value="Colonia Molino de San Roque, Xalapa"></option>
+      <option value="Colonia Bosques de Xalapa"></option>
+      <option value="Trancas Briones, Xalapa"></option>
+    </datalist>
     <button id="calc" style="padding:11px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-size:.95rem">Calcular viaje</button>
   </div>
   <div id="tripresult" style="margin-top:12px"></div>
@@ -95,6 +161,7 @@ const XAL = {lat:19.5438, lon:-96.9102}; // sesgo de búsqueda hacia Xalapa
 let gpsA = null; // coords de "mi ubicación" si el usuario la activa
 
 async function geocode(q){
+  if(!/xalapa|veracruz|banderilla|lencero/i.test(q)) q = q + ", Xalapa, Veracruz";
   const url = `https://api.tomtom.com/search/2/geocode/${encodeURIComponent(q)}.json`+
     `?key=${TT_KEY}&countrySet=MX&limit=1&lat=${XAL.lat}&lon=${XAL.lon}&radius=25000`;
   const r = await fetch(url); if(!r.ok) throw new Error("geocode "+r.status);
