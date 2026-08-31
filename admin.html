@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Agregar negocio</title>
+<style>
+  :root{--bg:#f4f6f9;--card:#fff;--ink:#141821;--muted:#5b6472;--line:#e4e8ee;--accent:#2563eb;--green:#1a9d5a;--red:#d5423b}
+  @media (prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171b22;--ink:#e8ecf2;--muted:#98a2b3;--line:#252b34;--accent:#5b8bf0;--green:#35c07a;--red:#f0655d}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:620px;margin:0 auto}
+  h1{font-size:1.25rem;letter-spacing:-.02em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:10px 0 4px}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.95rem}
+  .row{display:flex;gap:8px;flex-wrap:wrap}.row>div{flex:1;min-width:120px}
+  button{padding:11px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-size:.95rem;margin-top:12px;width:100%}
+  button.sec{background:var(--card);color:var(--accent);border:1px solid var(--line);width:auto;margin-top:0}
+  .msg{padding:10px 12px;border-radius:10px;margin-top:10px;font-size:.9rem}
+  .ok{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
+  .err{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+  .sub{color:var(--muted);font-size:.82rem}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<h1>➕ Agregar negocio</h1>
+<p class="sub">Panel privado. Requiere tu token de admin (se guarda solo en este navegador). <a href="./">← volver al mapa</a></p>
+
+<div class="card">
+  <label>Token de admin</label>
+  <input id="tok" type="password" placeholder="pega tu ADMIN_TOKEN">
+  <div class="sub" style="margin-top:6px">Se guarda en este dispositivo; no se comparte.</div>
+</div>
+
+<div class="card">
+  <label>Nombre del negocio *</label>
+  <input id="nom" placeholder="Ej. Lions Training Revolución">
+  <div class="row">
+    <div><label>Categoría</label><input id="cat" placeholder="Ej. Gimnasio"></div>
+    <div><label>Colonia</label><input id="col" placeholder="Ej. Revolución"></div>
+  </div>
+  <label>Municipio</label>
+  <select id="mun"><option>Xalapa</option><option>Banderilla</option><option>Coatepec</option></select>
+
+  <label>Ubicación</label>
+  <div class="sub" style="margin-bottom:6px">Usa una opción: GPS (si estás ahí), coords, o escribe la dirección para geocodificar.</div>
+  <div class="row">
+    <div><input id="lat" placeholder="Latitud (ej. 19.5397)"></div>
+    <div><input id="lon" placeholder="Longitud (ej. -96.9227)"></div>
+  </div>
+  <div style="margin-top:8px"><button class="sec" id="gps">📍 Usar mi ubicación GPS</button></div>
+  <label>…o dirección (si no pusiste coords)</label>
+  <input id="addr" placeholder="Calle, número, colonia, Xalapa">
+
+  <button id="save">Guardar negocio</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+const API="https://xalapa-trafico-api.ccsupp-9875.workers.dev";
+const $=id=>document.getElementById(id);
+try{ const t=localStorage.getItem("xt_admin_tok"); if(t) $("tok").value=t; }catch(e){}
+
+$("gps").onclick=()=>{
+  if(!navigator.geolocation){ $("gps").textContent="Sin GPS"; return; }
+  $("gps").textContent="Buscando…";
+  navigator.geolocation.getCurrentPosition(p=>{
+    $("lat").value=p.coords.latitude.toFixed(6); $("lon").value=p.coords.longitude.toFixed(6);
+    $("gps").textContent="📍 Ubicación lista";
+  },()=>{ $("gps").textContent="📍 Permiso denegado"; },{enableHighAccuracy:true,timeout:10000});
+};
+
+$("save").onclick=async()=>{
+  const msg=$("msg"); msg.className=""; msg.textContent="";
+  const tok=$("tok").value.trim(); const nom=$("nom").value.trim();
+  if(!tok){ msg.className="msg err"; msg.textContent="Falta el token de admin."; return; }
+  if(!nom){ msg.className="msg err"; msg.textContent="Falta el nombre."; return; }
+  try{ localStorage.setItem("xt_admin_tok",tok); }catch(e){}
+  const body={ nom, cat:$("cat").value.trim(), col:$("col").value.trim(), mun:$("mun").value };
+  const lat=$("lat").value.trim(), lon=$("lon").value.trim(), addr=$("addr").value.trim();
+  if(lat&&lon){ body.lat=parseFloat(lat); body.lon=parseFloat(lon); }
+  else if(addr){ body.address=addr; }
+  else { msg.className="msg err"; msg.textContent="Pon coords, GPS o una dirección."; return; }
+  msg.className="msg"; msg.textContent="Guardando…";
+  try{
+    const r=await fetch(`${API}/api/biz/add`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||("HTTP "+r.status));
+    msg.className="msg ok"; msg.textContent=`✅ Guardado: ${d.nom} (${d.lat.toFixed(5)}, ${d.lon.toFixed(5)}) en ${d.mun}`;
+    $("nom").value=$("cat").value=$("col").value=$("lat").value=$("lon").value=$("addr").value="";
+  }catch(e){ msg.className="msg err"; msg.textContent="Error: "+e.message; }
+};
+</script>
+</body>
+</html>
