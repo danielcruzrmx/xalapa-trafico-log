@@ -66,6 +66,19 @@
   <div class="sub" id="meta"></div>
 </header>
 
+<div class="card" id="planner" style="margin-bottom:16px">
+  <div class="label" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">🧭 ¿Conviene este viaje? (A → B en vivo)</div>
+  <div style="display:grid;gap:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="pa" placeholder="Punto A (dirección o lugar)" style="flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.95rem">
+      <button id="gps" style="padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;white-space:nowrap">📍 Mi ubicación</button>
+    </div>
+    <input id="pb" placeholder="Punto B (destino)" style="padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.95rem">
+    <button id="calc" style="padding:11px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-size:.95rem">Calcular viaje</button>
+  </div>
+  <div id="tripresult" style="margin-top:12px"></div>
+</div>
+
 <div id="app"></div>
 <div id="routes"></div>
 
@@ -76,6 +89,72 @@
 </footer>
 
 <script>
+// Key SOLO para el planificador del dashboard (pública). Reemplázala por una key dedicada de TomTom.
+const TT_KEY = "2Jjj8Ywnc6nAyO1do4vfNDJGHH6HDELa";
+const XAL = {lat:19.5438, lon:-96.9102}; // sesgo de búsqueda hacia Xalapa
+let gpsA = null; // coords de "mi ubicación" si el usuario la activa
+
+async function geocode(q){
+  const url = `https://api.tomtom.com/search/2/geocode/${encodeURIComponent(q)}.json`+
+    `?key=${TT_KEY}&countrySet=MX&limit=1&lat=${XAL.lat}&lon=${XAL.lon}&radius=25000`;
+  const r = await fetch(url); if(!r.ok) throw new Error("geocode "+r.status);
+  const d = await r.json();
+  if(!d.results||!d.results.length) throw new Error("no encontré \""+q+"\"");
+  const p = d.results[0];
+  return {lat:p.position.lat, lon:p.position.lon, name:p.address.freeformAddress||q};
+}
+async function routeAB(a,b){
+  const url = `https://api.tomtom.com/routing/1/calculateRoute/`+
+    `${a.lat},${a.lon}:${b.lat},${b.lon}/json?key=${TT_KEY}&traffic=true&computeTravelTimeFor=all`;
+  const r = await fetch(url); if(!r.ok) throw new Error("routing "+r.status);
+  return (await r.json()).routes[0].summary;
+}
+function tripVerdict(delay){
+  if(delay<0.15) return ["✅ Viaje fiable","var(--green)","Tráfico fluido — buen momento para tomarlo."];
+  if(delay<0.40) return ["⚠️ Con tráfico","var(--amber)","Más lento de lo normal, pero aceptable."];
+  return ["❌ Poco fiable ahora","var(--red)","Mucho tráfico — considéralo o cobra el tiempo extra."];
+}
+
+document.addEventListener("click", async (e)=>{
+  if(e.target.id==="gps"){
+    const btn=e.target; btn.textContent="Buscando…";
+    if(!navigator.geolocation){ btn.textContent="📍 Sin GPS"; return; }
+    navigator.geolocation.getCurrentPosition(p=>{
+      gpsA={lat:p.coords.latitude, lon:p.coords.longitude};
+      document.getElementById("pa").value="📍 Mi ubicación actual";
+      btn.textContent="📍 Ubicación lista";
+    },err=>{ btn.textContent="📍 Permiso denegado"; },{enableHighAccuracy:true,timeout:10000});
+  }
+  if(e.target.id==="calc"){
+    const out=document.getElementById("tripresult");
+    const aTxt=document.getElementById("pa").value.trim();
+    const bTxt=document.getElementById("pb").value.trim();
+    if(TT_KEY.startsWith("PONER_")){ out.innerHTML='<div class="err">Falta configurar la API key del planificador.</div>'; return; }
+    if(!bTxt){ out.innerHTML='<div class="err">Escribe el destino (Punto B).</div>'; return; }
+    out.innerHTML='<div class="sub">Calculando…</div>';
+    try{
+      const A = gpsA && aTxt.startsWith("📍") ? gpsA : await geocode(aTxt||"Centro, Xalapa");
+      const B = await geocode(bTxt);
+      const s = await routeAB(A,B);
+      const tt=s.travelTimeInSeconds, ntt=s.noTrafficTravelTimeInSeconds||tt;
+      const delay=(tt-ntt)/ntt, km=(s.lengthInMeters/1000).toFixed(1);
+      const kmh=Math.round((s.lengthInMeters/1000)/(tt/3600));
+      const [tit,col,msg]=tripVerdict(delay);
+      out.innerHTML=`<div class="card" style="border-left:4px solid ${col}">
+        <div style="font-size:1.15rem;font-weight:700;color:${col};margin-bottom:6px">${tit}</div>
+        <div style="font-size:.92rem;color:var(--muted);margin-bottom:10px">${msg}</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px">
+          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Distancia</div><div style="font-size:1.25rem;font-weight:700">${km}<small style="font-size:.8rem;color:var(--muted)"> km</small></div></div>
+          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Tiempo ahora</div><div style="font-size:1.25rem;font-weight:700">${Math.round(tt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
+          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Normal</div><div style="font-size:1.25rem;font-weight:700">${Math.round(ntt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
+          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Retraso</div><div style="font-size:1.25rem;font-weight:700;color:${col}">+${Math.round(delay*100)}<small style="font-size:.8rem">%</small></div></div>
+          <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Velocidad</div><div style="font-size:1.25rem;font-weight:700">${kmh}<small style="font-size:.8rem;color:var(--muted)"> km/h</small></div></div>
+        </div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:10px">A: ${A.name||"tu ubicación"} → B: ${B.name}</div></div>`;
+    }catch(err){ out.innerHTML='<div class="err">No se pudo calcular: '+err.message+'</div>'; }
+  }
+});
+
 const CSV_URL = "./data/trafico_xalapa.csv?t=" + Date.now();
 const NIV = {fluido:"var(--green)",moderado:"var(--amber)",congestionado:"var(--red)",cerrado:"var(--gray)",error:"var(--gray)"};
 const $ = s => document.querySelector(s);
