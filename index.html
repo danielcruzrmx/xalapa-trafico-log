@@ -242,7 +242,7 @@ async function bizSearch(q){
 // Tarifas por plataforma (aprox Xalapa, ajustables). Ganancia/hora decide viabilidad, no el retraso.
 const TARIFAS = {
   uber:    {label:"Uber",    base:12, km:6,   min:1.5, minimo:35, com:0.25},
-  didi:    {label:"DiDi",    base:15, km:6,   min:1.7, minimo:55, com:0.16},
+  didi:    {label:"DiDi",    base:15, km:6.5, min:1.9, minimo:55, com:0.16},
   indrive: {label:"inDrive", base:15, km:8,   min:0.5, minimo:40, com:0.13}, // referencia por distancia (precio real = tu oferta)
 };
 const IMPUESTOS = { conRFC:{label:"con RFC", tasa:0.101}, sinRFC:{label:"sin RFC", tasa:0.36} };
