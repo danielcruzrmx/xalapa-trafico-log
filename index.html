@@ -183,6 +183,12 @@
     <button class="taxbtn" data-t="conRFC" style="padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;font-weight:600">con RFC (10%)</button>
     <button class="taxbtn" data-t="sinRFC" style="padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;font-weight:600">sin RFC (36%)</button>
   </div>
+  <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="sub" style="white-space:nowrap">⛽ Costo por km (gasolina o energía)</span>
+    <span class="sub">$</span>
+    <input id="costkm" type="number" step="0.1" min="0" value="1.5" style="width:80px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)">
+    <span class="sub">/km</span>
+  </div>
   <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <span class="sub" style="white-space:nowrap">🎯 Mi objetivo</span>
     <input id="goal" type="range" min="60" max="300" step="10" value="120" style="flex:1;min-width:130px">
@@ -235,6 +241,7 @@ function getTax(){ try{ return localStorage.getItem("xt_tax")||"conRFC"; }catch(
 function curTarifa(){ return TARIFAS[getPlat()] || TARIFAS.didi; }
 function curTax(){ return IMPUESTOS[getTax()] || IMPUESTOS.conRFC; }
 function getGoal(){ try{ return +localStorage.getItem("xt_goal")||120; }catch(e){ return 120; } }
+function getCostKm(){ try{ const v=parseFloat(localStorage.getItem("xt_costkm")); return isFinite(v)?v:1.5; }catch(e){ return 1.5; } }
 function estFare(km,min){ const T=curTarifa(); return Math.max(T.minimo, T.base + km*T.km + min*T.min); }
 function viabilidad(perHour, goal){
   const r = perHour/goal;
@@ -290,11 +297,12 @@ async function doPlan(dest){
 function renderTripCard(d, out){
   lastTrip=d;
   const min=d.min_actual, km=d.km, delay=d.retraso_pct;
-  const goal=getGoal(), T=curTarifa(), tax=curTax();
+  const goal=getGoal(), T=curTarifa(), tax=curTax(), costkm=getCostKm();
   const bruto=estFare(km,min);
   const comision=bruto*T.com;
   const impuesto=bruto*tax.tasa;
-  const neto=Math.max(0, bruto-comision-impuesto);
+  const energia=costkm*km;
+  const neto=Math.max(0, bruto-comision-impuesto-energia);
   const perHour=neto/(min/60);
   const [tit,col,msg]=viabilidad(perHour, goal);
   const lbl='font-size:.68rem;text-transform:uppercase;color:var(--muted)';
@@ -308,7 +316,7 @@ function renderTripCard(d, out){
       <div><div class="label" style="${lbl}">Distancia</div><div style="font-size:1.25rem;font-weight:700">${km.toFixed(1)}<small style="font-size:.8rem;color:var(--muted)"> km</small></div></div>
       <div><div class="label" style="${lbl}">Retraso</div><div style="font-size:1.25rem;font-weight:700;color:var(--muted)">+${delay}<small style="font-size:.8rem">%</small></div></div>
     </div>
-    <div style="font-size:.72rem;color:var(--muted);margin-top:10px">Bruto $${Math.round(bruto)} − comisión ${T.label} ${Math.round(T.com*100)}% ($${Math.round(comision)}) − impuestos ${tax.label} ${Math.round(tax.tasa*100)}% ($${Math.round(impuesto)}) = <b style="color:var(--ink)">$${Math.round(neto)} neto</b>${getPlat()==="indrive"?" · inDrive: bruto es referencia (precio real = tu oferta)":""}</div>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:10px">Bruto $${Math.round(bruto)} − comisión ${T.label} ${Math.round(T.com*100)}% ($${Math.round(comision)}) − impuestos ${tax.label} ${Math.round(tax.tasa*100)}% ($${Math.round(impuesto)}) − combustible $${costkm}/km ($${Math.round(energia)}) = <b style="color:var(--ink)">$${Math.round(neto)} neto</b>${getPlat()==="indrive"?" · inDrive: bruto es referencia (precio real = tu oferta)":""}</div>
     <div style="font-size:.72rem;color:var(--muted);margin-top:4px">Normal ${d.min_libre} min · ${d.kmh} km/h · A: ${d.from.name||"tu ubicación"} → B: ${d.to.name}</div></div>`;
 }
 
@@ -339,6 +347,15 @@ function renderTripCard(d, out){
     if(lastTrip) renderTripCard(lastTrip, document.getElementById("tripresult"));
   }));
   paintTax();
+  // costo por km (combustible/energía)
+  const ck=document.getElementById("costkm");
+  if(ck){
+    ck.value=getCostKm();
+    ck.addEventListener("input",()=>{
+      try{ localStorage.setItem("xt_costkm", ck.value); }catch(e){}
+      if(lastTrip) renderTripCard(lastTrip, document.getElementById("tripresult"));
+    });
+  }
 })();
 
 // Slider de objetivo $/hora
