@@ -172,6 +172,11 @@
     </datalist>
     <button id="calc" style="padding:11px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-size:.95rem">Calcular viaje</button>
   </div>
+  <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span class="sub" style="white-space:nowrap">🎯 Mi objetivo</span>
+    <input id="goal" type="range" min="60" max="300" step="10" value="120" style="flex:1;min-width:130px">
+    <b id="goalv" style="white-space:nowrap">$120/h</b>
+  </div>
   <div id="tripresult" style="margin-top:12px"></div>
 </div>
 
@@ -207,11 +212,17 @@ async function bizSearch(q){
     return r.ok ? (d.results||[]) : [];
   }catch(e){ return []; }
 }
-function tripVerdict(delay){
-  if(delay<0.15) return ["✅ Viaje fiable","var(--green)","Tráfico fluido — buen momento para tomarlo."];
-  if(delay<0.40) return ["⚠️ Con tráfico","var(--amber)","Más lento de lo normal, pero aceptable."];
-  return ["❌ Poco fiable ahora","var(--red)","Mucho tráfico — considéralo o cobra el tiempo extra."];
+// Tarifas aproximadas Xalapa (ajustables). Ganancia/hora decide viabilidad, no el retraso.
+const TARIFA = {base:12, km:6, min:1.5, minimo:35};
+function getGoal(){ try{ return +localStorage.getItem("xt_goal")||120; }catch(e){ return 120; } }
+function estFare(km,min){ return Math.max(TARIFA.minimo, TARIFA.base + km*TARIFA.km + min*TARIFA.min); }
+function viabilidad(perHour, goal){
+  const r = perHour/goal;
+  if(r>=1)   return ["✅ Conviene","var(--green)","Buena ganancia por el tiempo que toma."];
+  if(r>=0.8) return ["⚠️ Regular","var(--amber)","Aceptable, algo por debajo de tu objetivo."];
+  return ["❌ No conviene","var(--red)","Poca ganancia para el tiempo que invertirías."];
 }
+let lastTrip=null;
 
 document.addEventListener("click", async (e)=>{
   if(e.target.id==="gps"){
@@ -257,21 +268,40 @@ async function doPlan(dest){
   catch(err){ out.innerHTML='<div class="err">No se pudo calcular: '+err.message+'</div>'; }
 }
 function renderTripCard(d, out){
-  const tt=d.min_actual*60, ntt=d.min_libre*60;
-  const delay=d.retraso_pct/100, km=d.km.toFixed(1), kmh=d.kmh;
-  const [tit,col,msg]=tripVerdict(delay);
+  lastTrip=d;
+  const min=d.min_actual, km=d.km, delay=d.retraso_pct;
+  const goal=getGoal();
+  const fare=estFare(km,min);
+  const perHour=fare/(min/60);
+  const [tit,col,msg]=viabilidad(perHour, goal);
+  const lbl='font-size:.68rem;text-transform:uppercase;color:var(--muted)';
   out.innerHTML=`<div class="card" style="border-left:4px solid ${col}">
     <div style="font-size:1.15rem;font-weight:700;color:${col};margin-bottom:6px">${tit}</div>
-    <div style="font-size:.92rem;color:var(--muted);margin-bottom:10px">${msg}</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px">
-      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Distancia</div><div style="font-size:1.25rem;font-weight:700">${km}<small style="font-size:.8rem;color:var(--muted)"> km</small></div></div>
-      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Tiempo ahora</div><div style="font-size:1.25rem;font-weight:700">${Math.round(tt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
-      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Normal</div><div style="font-size:1.25rem;font-weight:700">${Math.round(ntt/60)}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
-      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Retraso</div><div style="font-size:1.25rem;font-weight:700;color:${col}">+${Math.round(delay*100)}<small style="font-size:.8rem">%</small></div></div>
-      <div><div class="label" style="font-size:.68rem;text-transform:uppercase;color:var(--muted)">Velocidad</div><div style="font-size:1.25rem;font-weight:700">${kmh}<small style="font-size:.8rem;color:var(--muted)"> km/h</small></div></div>
+    <div style="font-size:.92rem;color:var(--muted);margin-bottom:10px">${msg} <span style="color:var(--ink)">~$${Math.round(perHour)}/h</span> (tu objetivo $${goal}/h)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:10px">
+      <div><div class="label" style="${lbl}">Ganancia est.</div><div style="font-size:1.25rem;font-weight:700;color:${col}">$${Math.round(fare)}</div></div>
+      <div><div class="label" style="${lbl}">Por hora</div><div style="font-size:1.25rem;font-weight:700">$${Math.round(perHour)}</div></div>
+      <div><div class="label" style="${lbl}">Tiempo ahora</div><div style="font-size:1.25rem;font-weight:700">${min}<small style="font-size:.8rem;color:var(--muted)"> min</small></div></div>
+      <div><div class="label" style="${lbl}">Distancia</div><div style="font-size:1.25rem;font-weight:700">${km.toFixed(1)}<small style="font-size:.8rem;color:var(--muted)"> km</small></div></div>
+      <div><div class="label" style="${lbl}">Retraso</div><div style="font-size:1.25rem;font-weight:700;color:var(--muted)">+${delay}<small style="font-size:.8rem">%</small></div></div>
     </div>
-    <div style="font-size:.78rem;color:var(--muted);margin-top:10px">A: ${d.from.name||"tu ubicación"} → B: ${d.to.name}</div></div>`;
+    <div style="font-size:.72rem;color:var(--muted);margin-top:10px">Normal ${d.min_libre} min · ${d.kmh} km/h · tarifa aprox (base $${TARIFA.base}+$${TARIFA.km}/km+$${TARIFA.min}/min)</div>
+    <div style="font-size:.78rem;color:var(--muted);margin-top:6px">A: ${d.from.name||"tu ubicación"} → B: ${d.to.name}</div></div>`;
 }
+
+// Slider de objetivo $/hora
+(function(){
+  const g=document.getElementById("goal"), v=document.getElementById("goalv");
+  if(g){
+    let saved=120; try{ saved=+localStorage.getItem("xt_goal")||120; }catch(e){}
+    g.value=saved; v.textContent="$"+saved+"/h";
+    g.addEventListener("input",()=>{
+      v.textContent="$"+g.value+"/h";
+      try{ localStorage.setItem("xt_goal", g.value); }catch(e){}
+      if(lastTrip) renderTripCard(lastTrip, document.getElementById("tripresult"));
+    });
+  }
+})();
 
 const CSV_URL = "./data/trafico_xalapa.csv?t=" + Date.now();
 const NIV = {fluido:"var(--green)",moderado:"var(--amber)",congestionado:"var(--red)",cerrado:"var(--gray)",error:"var(--gray)"};
