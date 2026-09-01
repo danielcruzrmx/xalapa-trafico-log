@@ -172,7 +172,12 @@
     </datalist>
     <button id="calc" style="padding:11px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-size:.95rem">Calcular viaje</button>
   </div>
-  <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <div style="margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="sub" style="white-space:nowrap">Plataforma:</span>
+    <button class="platbtn" data-p="didi" style="padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;font-weight:600">DiDi</button>
+    <button class="platbtn" data-p="indrive" style="padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;font-weight:600">inDrive</button>
+  </div>
+  <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <span class="sub" style="white-space:nowrap">🎯 Mi objetivo</span>
     <input id="goal" type="range" min="60" max="300" step="10" value="120" style="flex:1;min-width:130px">
     <b id="goalv" style="white-space:nowrap">$120/h</b>
@@ -212,10 +217,15 @@ async function bizSearch(q){
     return r.ok ? (d.results||[]) : [];
   }catch(e){ return []; }
 }
-// Tarifas aproximadas Xalapa (ajustables). Ganancia/hora decide viabilidad, no el retraso.
-const TARIFA = {base:12, km:6, min:1.5, minimo:35};
+// Tarifas por plataforma (aprox Xalapa, ajustables). Ganancia/hora decide viabilidad, no el retraso.
+const TARIFAS = {
+  didi:    {label:"DiDi",    base:10, km:5, min:1.3, minimo:35},
+  indrive: {label:"inDrive", base:15, km:8, min:0.5, minimo:40}, // referencia por distancia (precio real = tu oferta)
+};
+function getPlat(){ try{ return localStorage.getItem("xt_plat")||"didi"; }catch(e){ return "didi"; } }
+function curTarifa(){ return TARIFAS[getPlat()] || TARIFAS.didi; }
 function getGoal(){ try{ return +localStorage.getItem("xt_goal")||120; }catch(e){ return 120; } }
-function estFare(km,min){ return Math.max(TARIFA.minimo, TARIFA.base + km*TARIFA.km + min*TARIFA.min); }
+function estFare(km,min){ const T=curTarifa(); return Math.max(T.minimo, T.base + km*T.km + min*T.min); }
 function viabilidad(perHour, goal){
   const r = perHour/goal;
   if(r>=1)   return ["✅ Conviene","var(--green)","Buena ganancia por el tiempo que toma."];
@@ -285,9 +295,25 @@ function renderTripCard(d, out){
       <div><div class="label" style="${lbl}">Distancia</div><div style="font-size:1.25rem;font-weight:700">${km.toFixed(1)}<small style="font-size:.8rem;color:var(--muted)"> km</small></div></div>
       <div><div class="label" style="${lbl}">Retraso</div><div style="font-size:1.25rem;font-weight:700;color:var(--muted)">+${delay}<small style="font-size:.8rem">%</small></div></div>
     </div>
-    <div style="font-size:.72rem;color:var(--muted);margin-top:10px">Normal ${d.min_libre} min · ${d.kmh} km/h · tarifa aprox (base $${TARIFA.base}+$${TARIFA.km}/km+$${TARIFA.min}/min)</div>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:10px">Normal ${d.min_libre} min · ${d.kmh} km/h · ${curTarifa().label}: base $${curTarifa().base}+$${curTarifa().km}/km+$${curTarifa().min}/min${getPlat()==="indrive"?" (referencia — precio real = tu oferta)":""}</div>
     <div style="font-size:.78rem;color:var(--muted);margin-top:6px">A: ${d.from.name||"tu ubicación"} → B: ${d.to.name}</div></div>`;
 }
+
+// Selector de plataforma DiDi/inDrive
+(function(){
+  function paint(){ document.querySelectorAll(".platbtn").forEach(b=>{
+    const on=b.dataset.p===getPlat();
+    b.style.background=on?"var(--accent)":"var(--card)";
+    b.style.color=on?"#fff":"var(--ink)";
+    b.style.borderColor=on?"var(--accent)":"var(--line)";
+  }); }
+  document.querySelectorAll(".platbtn").forEach(b=>b.addEventListener("click",()=>{
+    try{ localStorage.setItem("xt_plat", b.dataset.p); }catch(e){}
+    paint();
+    if(lastTrip) renderTripCard(lastTrip, document.getElementById("tripresult"));
+  }));
+  paint();
+})();
 
 // Slider de objetivo $/hora
 (function(){
