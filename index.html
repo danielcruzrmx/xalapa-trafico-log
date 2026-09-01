@@ -247,9 +247,9 @@ async function bizSearch(q){
 }
 // Tarifas por plataforma (aprox Xalapa, ajustables). Ganancia/hora decide viabilidad, no el retraso.
 const TARIFAS = {
-  uber:    {label:"Uber",    base:12, km:6,   min:1.5, minimo:35, com:0.25},
-  didi:    {label:"DiDi",    base:15, km:6.5, min:1.9, minimo:55, com:0.16},
-  indrive: {label:"inDrive", base:15, km:8,   min:0.5, minimo:40, com:0.13}, // referencia por distancia (precio real = tu oferta)
+  uber:    {label:"Uber",    base:14.4, km:6.24, min:1.82, minimo:53, com:0.25}, // DiDi −4%
+  didi:    {label:"DiDi",    base:15,   km:6.5,  min:1.9,  minimo:55, com:0.16}, // calibrado con viajes reales
+  indrive: {label:"inDrive", base:14.7, km:6.37, min:1.86, minimo:54, com:0.13}, // DiDi −2% (referencia; precio real = tu oferta)
 };
 const IMPUESTOS = { conRFC:{label:"con RFC", tasa:0.101}, sinRFC:{label:"sin RFC", tasa:0.36} };
 function getPlat(){ try{ return localStorage.getItem("xt_plat")||"didi"; }catch(e){ return "didi"; } }
