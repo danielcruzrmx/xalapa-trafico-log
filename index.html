@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tráfico Xalapa — Monitor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tráfico Xln">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
   :root{
     --bg:#f4f6f9; --card:#ffffff; --ink:#141821; --muted:#5b6472; --line:#e4e8ee;
@@ -340,6 +348,11 @@ function renderTripCard(d, out){
     </div>
     <div style="font-size:.72rem;color:var(--muted);margin-top:10px">Bruto $${Math.round(bruto)} − comisión ${T.label} ${Math.round(T.com*100)}% ($${Math.round(comision)}) ${pay==="efectivo"?"− impuestos $0 (efectivo: no retienen)":"− impuestos "+tax.label+" "+Math.round(tax.tasa*100)+"% ($"+Math.round(impuesto)+")"} − combustible $${costkm}/km ($${Math.round(energia)}) = <b style="color:var(--ink)">$${Math.round(neto)} neto</b>${getPlat()==="indrive"?" · inDrive: bruto es referencia":""}</div>
     <div style="font-size:.72rem;color:var(--muted);margin-top:4px">Normal ${d.min_libre} min · ${d.kmh} km/h · A: ${d.from.name||"tu ubicación"} → B: ${d.to.name}</div></div>`;
+}
+
+// Registrar service worker (PWA instalable)
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
 }
 
 // Selector de plataforma DiDi/inDrive
