@@ -3691,3 +3691,29 @@ fecha_local,hora_local,dia_semana,zona,current_speed_kmph,free_flow_kmph,ratio,n
 2026-09-03,08:00,jueves,Salida Coatepec,36,43,0.84,fluido,0.814506,
 2026-09-03,08:00,jueves,Terminal CAXA,36,43,0.84,fluido,0.814506,
 2026-09-03,08:00,jueves,Av Federalismo,31,38,0.82,fluido,0.97,
+2026-09-03,08:30,jueves,Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Lazaro Cardenas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Avila Camacho,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Rebsamen,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Xalapa,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av 20 de Noviembre,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Araucarias,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Murillo Vidal,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Ruiz Cortines-Animas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Circuito Presidentes,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Blvd Las Trancas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Camino Antiguo Coatepec,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Camino al Sumidero,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Xalapa 2000,,,,error,,HTTP Error 500: Internal Server Error
+2026-09-03,08:30,jueves,Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Zona UV,,,,error,,HTTP Error 500: Internal Server Error
+2026-09-03,08:30,jueves,Banderilla,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,El Castillo,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Casa Blanca,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Los Sauces,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Sumidero,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Salida Veracruz,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Salida Coatepec,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Terminal CAXA,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Federalismo,,,,error,,HTTP Error 503: Service Unavailable

@@ -5429,3 +5429,43 @@ fecha_local,hora_local,dia_semana,ruta,min_actual,min_libre,retraso_pct,nivel,di
 2026-09-03,08:00,jueves,Los Sauces -> Salida Coatepec,21.3,15.3,39,moderado,5.93,
 2026-09-03,08:00,jueves,Centro -> Los Sauces,16.2,13.4,21,moderado,4.42,
 2026-09-03,08:00,jueves,Centro -> Casa Blanca,14.8,10.8,37,moderado,4.37,
+2026-09-03,08:30,jueves,Casa Blanca -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Los Sauces -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Banderilla -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,El Castillo -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Blvd Las Trancas -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Ruiz Cortines-Animas -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Xalapa 2000 -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Plaza Americas -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Zona UV -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Sumidero -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Salida Coatepec -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Salida Veracruz -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Araucarias -> Centro,,,,error,,HTTP Error 500: Internal Server Error
+2026-09-03,08:30,jueves,Av Murillo Vidal -> Centro,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Banderilla -> Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Blvd Las Trancas -> Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Casa Blanca -> Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Ruiz Cortines-Animas -> Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,El Castillo -> Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Xalapa 2000,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Plaza Americas -> Xalapa 2000,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,El Castillo -> Xalapa 2000,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Salida Veracruz,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Salida Coatepec,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Banderilla,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> El Castillo,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Blvd Las Trancas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Zona UV,10.0,7.0,44,congestionado,1.97,
+2026-09-03,08:30,jueves,Centro -> Terminal CAXA,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Aeropuerto El Lencero,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Plaza Americas -> Salida Veracruz,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Zona UV -> Plaza Americas,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Av Ruiz Cortines-Animas -> Zona UV,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Blvd Las Trancas -> Xalapa 2000,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Banderilla -> Zona UV,24.5,17.1,44,congestionado,7.82,
+2026-09-03,08:30,jueves,Casa Blanca -> Salida Coatepec,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Los Sauces -> Salida Coatepec,18.7,15.3,22,moderado,5.93,
+2026-09-03,08:30,jueves,Centro -> Los Sauces,,,,error,,HTTP Error 503: Service Unavailable
+2026-09-03,08:30,jueves,Centro -> Casa Blanca,14.6,11.4,27,moderado,4.7,
