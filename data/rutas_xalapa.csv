@@ -7829,3 +7829,43 @@ fecha_local,hora_local,dia_semana,ruta,min_actual,min_libre,retraso_pct,nivel,di
 2026-09-04,21:00,viernes,Los Sauces -> Salida Coatepec,17.9,15.9,12,fluido,6.43,
 2026-09-04,21:00,viernes,Centro -> Los Sauces,15.2,13.1,16,moderado,4.37,
 2026-09-04,21:00,viernes,Centro -> Casa Blanca,13.5,10.8,25,moderado,4.37,
+2026-09-04,21:30,viernes,Casa Blanca -> Centro,15.4,14.3,8,fluido,5.67,
+2026-09-04,21:30,viernes,Los Sauces -> Centro,14.7,13.8,6,fluido,4.87,
+2026-09-04,21:30,viernes,Banderilla -> Centro,19.5,18.3,6,fluido,9.53,
+2026-09-04,21:30,viernes,El Castillo -> Centro,18.1,16.8,8,fluido,6.36,
+2026-09-04,21:30,viernes,Blvd Las Trancas -> Centro,16.7,15.5,8,fluido,6.14,
+2026-09-04,21:30,viernes,Av Ruiz Cortines-Animas -> Centro,13.3,12.1,10,fluido,3.29,
+2026-09-04,21:30,viernes,Xalapa 2000 -> Centro,11.4,10.5,9,fluido,4.57,
+2026-09-04,21:30,viernes,Plaza Americas -> Centro,5.5,4.8,13,fluido,1.38,
+2026-09-04,21:30,viernes,Zona UV -> Centro,4.6,4.0,15,moderado,1.45,
+2026-09-04,21:30,viernes,Sumidero -> Centro,,,,error,,HTTP Error 429: Too Many Requests
+2026-09-04,21:30,viernes,Salida Coatepec -> Centro,14.5,13.3,10,fluido,5.11,
+2026-09-04,21:30,viernes,Salida Veracruz -> Centro,,,,error,,HTTP Error 429: Too Many Requests
+2026-09-04,21:30,viernes,Av Araucarias -> Centro,,,,error,,HTTP Error 429: Too Many Requests
+2026-09-04,21:30,viernes,Av Murillo Vidal -> Centro,8.0,7.2,11,fluido,2.24,
+2026-09-04,21:30,viernes,Centro -> Plaza Americas,3.9,3.4,16,moderado,0.97,
+2026-09-04,21:30,viernes,Banderilla -> Plaza Americas,19.6,18.4,7,fluido,8.88,
+2026-09-04,21:30,viernes,Blvd Las Trancas -> Plaza Americas,17.8,16.4,8,fluido,6.45,
+2026-09-04,21:30,viernes,Casa Blanca -> Plaza Americas,16.4,15.2,8,fluido,5.98,
+2026-09-04,21:30,viernes,Av Ruiz Cortines-Animas -> Plaza Americas,11.6,10.5,10,fluido,2.76,
+2026-09-04,21:30,viernes,El Castillo -> Plaza Americas,21.6,20.1,8,fluido,7.14,
+2026-09-04,21:30,viernes,Centro -> Xalapa 2000,,,,error,,HTTP Error 429: Too Many Requests
+2026-09-04,21:30,viernes,Plaza Americas -> Xalapa 2000,,,,error,,HTTP Error 429: Too Many Requests
+2026-09-04,21:30,viernes,El Castillo -> Xalapa 2000,,,,error,,HTTP Error 429: Too Many Requests
+2026-09-04,21:30,viernes,Centro -> Salida Veracruz,16.6,14.1,17,moderado,4.66,
+2026-09-04,21:30,viernes,Centro -> Salida Coatepec,,,,error,,HTTP Error 429: Too Many Requests
+2026-09-04,21:30,viernes,Centro -> Banderilla,26.0,23.4,11,fluido,9.01,
+2026-09-04,21:30,viernes,Centro -> El Castillo,21.3,18.7,14,fluido,6.55,
+2026-09-04,21:30,viernes,Centro -> Blvd Las Trancas,13.1,11.8,11,fluido,4.96,
+2026-09-04,21:30,viernes,Centro -> Zona UV,7.8,7.0,12,fluido,1.97,
+2026-09-04,21:30,viernes,Centro -> Terminal CAXA,7.5,6.6,14,fluido,2.31,
+2026-09-04,21:30,viernes,Centro -> Aeropuerto El Lencero,18.0,17.0,6,fluido,15.64,
+2026-09-04,21:30,viernes,Plaza Americas -> Salida Veracruz,19.0,17.4,9,fluido,6.94,
+2026-09-04,21:30,viernes,Zona UV -> Plaza Americas,3.7,3.2,15,moderado,1.05,
+2026-09-04,21:30,viernes,Av Ruiz Cortines-Animas -> Zona UV,15.1,14.3,5,fluido,3.67,
+2026-09-04,21:30,viernes,Blvd Las Trancas -> Xalapa 2000,17.4,16.2,7,fluido,6.53,
+2026-09-04,21:30,viernes,Banderilla -> Zona UV,17.7,16.6,7,fluido,7.76,
+2026-09-04,21:30,viernes,Casa Blanca -> Salida Coatepec,17.6,16.4,7,fluido,7.23,
+2026-09-04,21:30,viernes,Los Sauces -> Salida Coatepec,16.8,15.9,6,fluido,6.43,
+2026-09-04,21:30,viernes,Centro -> Los Sauces,14.0,13.1,7,fluido,4.37,
+2026-09-04,21:30,viernes,Centro -> Casa Blanca,12.0,10.8,11,fluido,4.37,
