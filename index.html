@@ -567,16 +567,18 @@ function render(rows){
 
 function renderRoutes(rows){
   if(!rows.length){ $("#routes").innerHTML=""; return; }
-  rows.forEach(r=>{ r.delay=parseInt(r.retraso_pct); r.min=parseFloat(r.min_actual); r.ts=r.fecha_local+" "+r.hora_local; });
+  rows.forEach(r=>{ r.delay=parseInt(r.retraso_pct); r.min=parseFloat(r.min_actual); r.ts=r.fecha_local?(r.fecha_local+" "+r.hora_local):"ahora"; });
   const lastTs = rows[rows.length-1].ts;
   const now = rows.filter(r=>r.ts===lastTs);
-  let html='<div class="sec-title">Rutas — tiempo real vs. normal (retraso por tráfico)</div><div class="grid zones">';
+  let html='<div class="sec-title">Corredores — ahora vs. lo normal a esta hora</div><div class="grid zones">';
   html += now.sort((a,b)=>(b.delay||0)-(a.delay||0)).map(r=>{
     const col = NIV[r.nivel]||"var(--gray)";
     const d = isFinite(r.delay)? (r.delay>0?"+"+r.delay+"%":r.delay+"%") : "—";
     const mn = isFinite(r.min)? r.min+" min" : "sin dato";
+    const nrm = (r.min_libre!==""&&r.min_libre!=null)? " · normal "+r.min_libre+" min"
+              : (r.kmh? " · "+r.kmh+" km/h" : "");
     return `<div class="card zone"><div class="bar" style="background:${col}"></div>
-      <div><div class="zn">${r.ruta}</div><div class="zs">${mn} · normal ${r.min_libre} min</div></div>
+      <div><div class="zn">${r.ruta}</div><div class="zs">${mn}${nrm}</div></div>
       <span class="pill p-${r.nivel}">${d}</span></div>`;
   }).join("")+'</div>';
   $("#routes").innerHTML = html;
@@ -591,10 +593,20 @@ async function load(){
     $("#status").textContent = "Error al cargar datos";
     if(!$("#app").innerHTML) $("#app").innerHTML='<div class="err">No se pudo leer el CSV ('+e.message+'). Si acabas de activar GitHub Pages, espera 1-2 min.</div>';
   }
+  // 10-sep-2026: el sampler de la A1 dejó de muestrear rutas (consumían la cuota de Routing que
+  // necesita la app de conductor), así que los corredores se calculan en el Worker, en vivo y por
+  // el espejo: da igual cuánta gente abra este dashboard, cuesta lo mismo. El CSV queda de respaldo.
   try{
-    const r2 = await fetch("./data/rutas_xalapa.csv?t="+Date.now(),{cache:"no-store"});
-    if(r2.ok) renderRoutes(parseCSV(await r2.text()));
-  }catch(e){ /* aún no hay datos de rutas */ }
+    const r2 = await fetch(`${API_BASE}/api/corredores`,{cache:"no-store"});
+    if(!r2.ok) throw new Error("HTTP "+r2.status);
+    const j = await r2.json();
+    renderRoutes(j.rutas||[]);
+  }catch(e){
+    try{
+      const r3 = await fetch("./data/rutas_xalapa.csv?t="+Date.now(),{cache:"no-store"});
+      if(r3.ok) renderRoutes(parseCSV(await r3.text()));
+    }catch(_){ /* aún no hay datos de rutas */ }
+  }
 }
 load();
 setInterval(load, 180000); // 3 min

@@ -1,0 +1,26 @@
+# Este repo es PÚBLICO (danielcruzrmx/xalapa-trafico-log) y se despliega solo en
+# Cloudflare Pages. Hasta hoy los archivos con secretos solo estaban protegidos por
+# .git/info/exclude, que es local de cada máquina y NO viaja con el repo: la PC y la A1
+# dependían cada una de su propia copia. Esto los cubre en cualquier clon.
+
+# Credenciales
+.gh_token
+.gitcred.sh
+.snapshot_token
+*.token
+.env
+.env.*
+
+# El sampler lleva la llave de TomTom embebida — nunca debe subirse
+sampler.py
+
+# Respaldos que dejan los scripts de mantenimiento
+*.bak
+*.bak-*
+crontab.bak-*
+
+# Basura local
+__pycache__/
+*.pyc
+cron.log
+.claude/
