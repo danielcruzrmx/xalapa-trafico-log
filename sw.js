@@ -1,6 +1,9 @@
 // Service worker — Tráfico Xalapa PWA
 // Shell cache-first (para abrir offline el último estado); datos/API siempre red con fallback.
-const CACHE = "trafico-xln-v1";
+// 10-sep-2026: subir esta versión CADA VEZ que cambie index.html. El shell se sirve
+// cache-first, así que sin bumpearla quien ya visitó (o instaló el PWA) se queda con la
+// versión vieja para siempre; al cambiar el nombre, el handler de activate borra la anterior.
+const CACHE = "trafico-xln-v2";
 const SHELL = [
   "./",
   "./index.html",
