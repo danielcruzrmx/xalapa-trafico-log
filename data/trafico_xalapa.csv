@@ -13623,3 +13623,29 @@ fecha_local,hora_local,dia_semana,zona,current_speed_kmph,free_flow_kmph,ratio,n
 2026-09-25,17:00,viernes,Salida Coatepec,43,43,1.0,fluido,1,
 2026-09-25,17:00,viernes,Terminal CAXA,43,43,1.0,fluido,1,
 2026-09-25,17:00,viernes,Av Federalismo,39,39,1.0,fluido,1,
+2026-09-25,18:00,viernes,Centro,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Lazaro Cardenas,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Avila Camacho,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Rebsamen,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Xalapa,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Americas,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av 20 de Noviembre,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Araucarias,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Murillo Vidal,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Ruiz Cortines-Animas,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Circuito Presidentes,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Blvd Las Trancas,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Camino Antiguo Coatepec,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Camino al Sumidero,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Xalapa 2000,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Plaza Americas,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Zona UV,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Banderilla,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,El Castillo,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Casa Blanca,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Los Sauces,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Sumidero,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Salida Veracruz,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Salida Coatepec,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Terminal CAXA,,,,error,,HTTP Error 403: Forbidden
+2026-09-25,18:00,viernes,Av Federalismo,,,,error,,HTTP Error 403: Forbidden
