@@ -13883,3 +13883,29 @@ fecha_local,hora_local,dia_semana,zona,current_speed_kmph,free_flow_kmph,ratio,n
 2026-09-26,12:00,sabado,Salida Coatepec,,,,error,,HTTP Error 403: Forbidden
 2026-09-26,12:00,sabado,Terminal CAXA,,,,error,,HTTP Error 403: Forbidden
 2026-09-26,12:00,sabado,Av Federalismo,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Centro,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Lazaro Cardenas,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Avila Camacho,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Rebsamen,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Xalapa,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Americas,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av 20 de Noviembre,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Araucarias,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Murillo Vidal,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Ruiz Cortines-Animas,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Circuito Presidentes,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Blvd Las Trancas,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Camino Antiguo Coatepec,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Camino al Sumidero,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Xalapa 2000,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Plaza Americas,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Zona UV,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Banderilla,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,El Castillo,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Casa Blanca,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Los Sauces,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Sumidero,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Salida Veracruz,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Salida Coatepec,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Terminal CAXA,,,,error,,HTTP Error 403: Forbidden
+2026-09-26,13:00,sabado,Av Federalismo,,,,error,,HTTP Error 403: Forbidden
